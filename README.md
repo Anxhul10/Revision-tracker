@@ -1,3 +1,5 @@
+<img width="1920" height="1080" alt="Screenshot From 2026-05-19 22-38-37" src="https://github.com/user-attachments/assets/a364a6c8-3834-4bf0-9c01-c469e3e36919" />
+
 # DSA Revision Tracker
 
 A minimal single-page app to track DSA problems with spaced repetition (2d → 7d → 21d → 60d → mastered).
