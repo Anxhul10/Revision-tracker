@@ -1,4 +1,5 @@
 import type { Question } from '../types';
+import { difficultyChartColor, difficultyGroupKey } from './difficulty';
 
 export interface DashboardStats {
   total: number;
@@ -39,21 +40,16 @@ export function getTopicDistribution(questions: Question[]): { topic: string; co
 export function getDifficultyDistribution(
   questions: Question[]
 ): { difficulty: string; count: number; fill: string }[] {
-  const colors: Record<string, string> = {
-    Easy: '#3fb950',
-    Medium: '#d29922',
-    Hard: '#f85149',
-  };
-
   const counts = questions.reduce<Record<string, number>>((acc, q) => {
-    acc[q.difficulty] = (acc[q.difficulty] ?? 0) + 1;
+    const key = difficultyGroupKey(q.difficulty);
+    acc[key] = (acc[key] ?? 0) + 1;
     return acc;
   }, {});
 
   return Object.entries(counts).map(([difficulty, count]) => ({
     difficulty,
     count,
-    fill: colors[difficulty] ?? '#58a6ff',
+    fill: difficultyChartColor(difficulty),
   }));
 }
 

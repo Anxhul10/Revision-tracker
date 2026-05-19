@@ -47,7 +47,8 @@ export function AddQuestionModal({ open, onClose, onSubmit }: AddQuestionModalPr
   };
 
   const inputClass =
-    'w-full rounded-lg border border-surface-border bg-surface-overlay px-3 py-2 text-sm text-gray-200 placeholder:text-gray-500 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/50';
+    'w-full rounded-lg border border-surface-border bg-surface-overlay px-3 py-2 text-sm text-gray-300 placeholder:text-gray-500 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/50';
+  const selectClass = `app-select ${inputClass}`;
 
   return (
     <Modal open={open} onClose={onClose} title="Add Question">
@@ -79,7 +80,7 @@ export function AddQuestionModal({ open, onClose, onSubmit }: AddQuestionModalPr
             <select
               value={form.platform}
               onChange={(e) => setForm({ ...form, platform: e.target.value })}
-              className={inputClass}
+              className={selectClass}
             >
               {PLATFORMS.map((p) => (
                 <option key={p} value={p}>
@@ -93,7 +94,7 @@ export function AddQuestionModal({ open, onClose, onSubmit }: AddQuestionModalPr
             <select
               value={form.topic}
               onChange={(e) => setForm({ ...form, topic: e.target.value })}
-              className={inputClass}
+              className={selectClass}
             >
               {TOPICS.map((t) => (
                 <option key={t} value={t}>
@@ -109,7 +110,7 @@ export function AddQuestionModal({ open, onClose, onSubmit }: AddQuestionModalPr
               onChange={(e) =>
                 setForm({ ...form, difficulty: e.target.value as Difficulty })
               }
-              className={inputClass}
+              className={selectClass}
             >
               {DIFFICULTIES.map((d) => (
                 <option key={d} value={d}>
