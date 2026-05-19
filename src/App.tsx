@@ -14,6 +14,7 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import type { AddQuestionForm, Question, QuestionFilters } from './types';
 import { markReviewed } from './utils/revision';
+import { exportBackupToFile, importBackupFromFile } from './utils/backupFile';
 import { exportState, importState } from './utils/storage';
 import { dateForDay, formatDisplayDate, startDateForDay } from './utils/dates';
 import { computeStats, getUniqueValues } from './utils/stats';
@@ -117,34 +118,29 @@ function AppContent() {
     [updateState, showToast]
   );
 
-  const handleExport = useCallback(() => {
+  const handleExport = useCallback(async () => {
     const json = exportState(state);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `dsa-revision-backup-day-${currentDay}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('Backup exported', 'success');
+    const defaultName = `dsa-revision-backup-day-${currentDay}.json`;
+    try {
+      const saved = await exportBackupToFile(json, defaultName);
+      if (saved) showToast('Backup exported', 'success');
+    } catch {
+      showToast('Export failed', 'error');
+    }
   }, [state, currentDay, showToast]);
 
-  const handleImport = useCallback(
-    (file: File) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const imported = importState(reader.result as string);
-          replaceState(imported);
-          showToast(`Imported ${imported.questions.length} questions`, 'success');
-        } catch {
-          showToast('Invalid backup file', 'error');
-        }
-      };
-      reader.readAsText(file);
-    },
-    [replaceState, showToast]
-  );
+  const handleImport = useCallback(async () => {
+    try {
+      const content = await importBackupFromFile();
+      if (!content) return;
+
+      const imported = importState(content);
+      replaceState(imported);
+      showToast(`Imported ${imported.questions.length} questions`, 'success');
+    } catch {
+      showToast('Invalid backup file', 'error');
+    }
+  }, [replaceState, showToast]);
 
   useKeyboardShortcuts({
     onIncrementDay: incrementDay,

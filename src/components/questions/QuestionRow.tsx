@@ -1,4 +1,5 @@
 import type { Question } from '../../types';
+import { openExternalLink } from '../../utils/openLink';
 import { formatRevisionStage, getReviewStatus } from '../../utils/revision';
 import { Button } from '../ui/Button';
 
@@ -53,14 +54,13 @@ export function QuestionRow({ question, currentDay, onMarkReviewed }: QuestionRo
       </td>
       <td className="px-4 py-3">
         <div className="flex flex-wrap items-center gap-2">
-          <a
-            href={question.link}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={() => openExternalLink(question.link)}
             className="inline-flex items-center rounded-lg border border-surface-border bg-surface-overlay px-2.5 py-1.5 text-xs font-medium text-gray-300 hover:border-accent/50 hover:text-accent transition-colors"
           >
             Open
-          </a>
+          </button>
           {!question.completed && (
             <Button
               variant="success"

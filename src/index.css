@@ -18,6 +18,16 @@
   kbd {
     @apply font-mono text-[10px];
   }
+
+  /* Native selects on Linux WebKit ignore text color without color-scheme */
+  .app-select {
+    color-scheme: dark;
+  }
+
+  .app-select option {
+    background-color: #21262d;
+    color: #d1d5db;
+  }
 }
 
 /* Custom scrollbar */

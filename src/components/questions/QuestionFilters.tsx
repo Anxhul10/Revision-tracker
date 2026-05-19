@@ -17,7 +17,7 @@ export const QuestionFiltersBar = forwardRef<HTMLInputElement, QuestionFiltersPr
     const update = (partial: Partial<Filters>) => onChange({ ...filters, ...partial });
 
     const selectClass =
-      'rounded-lg border border-surface-border bg-surface-overlay px-3 py-2 text-sm text-gray-200 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/50 transition-colors';
+      'app-select rounded-lg border border-surface-border bg-surface-overlay px-3 py-2 text-sm text-gray-300 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/50 transition-colors';
 
     return (
       <div className="flex flex-col gap-3">
