@@ -1,4 +1,5 @@
 import type { Question } from '../../types';
+import { difficultyBadgeClass, formatDifficultyLabel } from '../../utils/difficulty';
 import { openExternalLink } from '../../utils/openLink';
 import { formatRevisionStage, getReviewStatus } from '../../utils/revision';
 import { Button } from '../ui/Button';
@@ -14,12 +15,6 @@ const statusStyles = {
   due: 'border-l-red-400 bg-red-500/8',
   upcoming: 'border-l-amber-500/70 bg-amber-500/5',
   completed: 'border-l-emerald-500 bg-emerald-500/5',
-};
-
-const difficultyColors: Record<string, string> = {
-  Easy: 'text-emerald-400 bg-emerald-500/10',
-  Medium: 'text-amber-400 bg-amber-500/10',
-  Hard: 'text-red-400 bg-red-500/10',
 };
 
 export function QuestionRow({ question, currentDay, onMarkReviewed }: QuestionRowProps) {
@@ -40,9 +35,9 @@ export function QuestionRow({ question, currentDay, onMarkReviewed }: QuestionRo
       <td className="hidden px-4 py-3 text-sm text-gray-400 md:table-cell">{question.topic}</td>
       <td className="px-4 py-3">
         <span
-          className={`inline-block rounded-md px-2 py-0.5 text-xs font-medium ${difficultyColors[question.difficulty] ?? ''}`}
+          className={`inline-block rounded-md px-2 py-0.5 text-xs font-medium ${difficultyBadgeClass(question.difficulty)}`}
         >
-          {question.difficulty}
+          {formatDifficultyLabel(question.difficulty)}
         </span>
       </td>
       <td className="hidden px-4 py-3 text-sm text-gray-400 lg:table-cell">Day {question.solvedDay}</td>

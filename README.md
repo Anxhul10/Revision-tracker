@@ -1,5 +1,7 @@
 # DSA Revision Tracker
 
+[![CI](https://github.com/Anxhul10/dsa-revision-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/Anxhul10/dsa-revision-tracker/actions/workflows/ci.yml)
+
 Desktop app for tracking DSA problems with spaced repetition (2d → 7d → 21d → 60d → mastered). Built with **React + TypeScript + Vite** and packaged for **Linux (Fedora)** and **Windows** using **[Tauri 2](https://v2.tauri.app/)** (native WebView shell, small install size).
 
 ## Stack
@@ -98,10 +100,23 @@ Artifacts are written to `src-tauri/target/release/bundle/`:
 
 Stored locally under the key `dsa-revision-tracker` in the app’s WebView storage. Use **Export JSON** before reinstalling or moving machines.
 
+## CI
+
+GitHub Actions runs on every push and pull request to `main` / `master`:
+
+| Job | Checks |
+|-----|--------|
+| **Frontend** | `npm ci`, TypeScript compile, Vite production build |
+| **Desktop (Linux)** | Tauri compile on Ubuntu (Fedora-compatible stack) |
+| **Desktop (Windows)** | Tauri compile on Windows |
+
+Installers are not produced in CI (`--no-bundle`); local `npm run desktop:build` still creates `.rpm` / `.exe` bundles.
+
 ## Project layout
 
 ```
 src/           React UI
 src-tauri/     Tauri / Rust desktop shell
 public/        Static assets
+.github/       CI workflows
 ```
