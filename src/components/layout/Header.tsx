@@ -2,11 +2,19 @@ import { DayCounter } from './DayCounter';
 
 interface HeaderProps {
   currentDay: number;
+  currentDate: string;
   onIncrementDay: () => void;
   onDecrementDay: () => void;
+  onDateChange: (isoDate: string) => void;
 }
 
-export function Header({ currentDay, onIncrementDay, onDecrementDay }: HeaderProps) {
+export function Header({
+  currentDay,
+  currentDate,
+  onIncrementDay,
+  onDecrementDay,
+  onDateChange,
+}: HeaderProps) {
   return (
     <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
@@ -19,8 +27,10 @@ export function Header({ currentDay, onIncrementDay, onDecrementDay }: HeaderPro
       </div>
       <DayCounter
         currentDay={currentDay}
+        currentDate={currentDate}
         onIncrement={onIncrementDay}
         onDecrement={onDecrementDay}
+        onDateChange={onDateChange}
       />
     </header>
   );

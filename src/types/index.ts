@@ -17,6 +17,8 @@ export interface Question {
 
 export interface AppState {
   currentDay: number;
+  /** ISO date (YYYY-MM-DD) for Day 1. */
+  startDate: string;
   questions: Question[];
 }
 

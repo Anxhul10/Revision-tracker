@@ -1,9 +1,11 @@
 import type { AppState } from '../types';
+import { inferStartDate, todayIso } from './dates';
 
 const STORAGE_KEY = 'dsa-revision-tracker';
 
 const DEFAULT_STATE: AppState = {
   currentDay: 1,
+  startDate: todayIso(),
   questions: [],
 };
 
@@ -12,8 +14,13 @@ export function loadState(): AppState {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { ...DEFAULT_STATE };
     const parsed = JSON.parse(raw) as AppState;
+    const currentDay = parsed.currentDay ?? DEFAULT_STATE.currentDay;
     return {
-      currentDay: parsed.currentDay ?? DEFAULT_STATE.currentDay,
+      currentDay,
+      startDate:
+        typeof parsed.startDate === 'string'
+          ? parsed.startDate
+          : inferStartDate(currentDay),
       questions: Array.isArray(parsed.questions) ? parsed.questions : [],
     };
   } catch {
@@ -34,5 +41,13 @@ export function importState(json: string): AppState {
   if (typeof parsed.currentDay !== 'number' || !Array.isArray(parsed.questions)) {
     throw new Error('Invalid backup format');
   }
-  return parsed;
+  const currentDay = parsed.currentDay;
+  return {
+    currentDay,
+    startDate:
+      typeof parsed.startDate === 'string'
+        ? parsed.startDate
+        : inferStartDate(currentDay),
+    questions: parsed.questions,
+  };
 }

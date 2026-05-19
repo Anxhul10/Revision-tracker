@@ -15,6 +15,7 @@ import { useLocalStorage } from './hooks/useLocalStorage';
 import type { AddQuestionForm, Question, QuestionFilters } from './types';
 import { markReviewed } from './utils/revision';
 import { exportState, importState } from './utils/storage';
+import { dateForDay, formatDisplayDate, startDateForDay } from './utils/dates';
 import { computeStats, getUniqueValues } from './utils/stats';
 
 const defaultFilters: QuestionFilters = {
@@ -32,7 +33,12 @@ function AppContent() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
-  const { currentDay, questions } = state;
+  const { currentDay, startDate, questions } = state;
+
+  const currentDate = useMemo(
+    () => dateForDay(startDate, currentDay),
+    [startDate, currentDay]
+  );
 
   const stats = useMemo(
     () => computeStats(questions, currentDay),
@@ -57,6 +63,17 @@ function AppContent() {
       currentDay: Math.max(1, s.currentDay - 1),
     }));
   }, [updateState]);
+
+  const handleDateChange = useCallback(
+    (isoDate: string) => {
+      updateState((s) => ({
+        ...s,
+        startDate: startDateForDay(isoDate, s.currentDay),
+      }));
+      showToast(`Current day set to ${formatDisplayDate(isoDate)}`, 'info');
+    },
+    [updateState, showToast]
+  );
 
   const handleAddQuestion = useCallback(
     (form: AddQuestionForm) => {
@@ -140,8 +157,10 @@ function AppContent() {
     <div className="mx-auto min-h-screen max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       <Header
         currentDay={currentDay}
+        currentDate={currentDate}
         onIncrementDay={incrementDay}
         onDecrementDay={decrementDay}
+        onDateChange={handleDateChange}
       />
 
       <section className="mt-8 space-y-6 animate-fade-in">
