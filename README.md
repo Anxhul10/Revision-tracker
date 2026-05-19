@@ -1,124 +1,164 @@
-<img width="1920" height="1080" alt="Screenshot From 2026-05-19 22-38-37" src="https://github.com/user-attachments/assets/a364a6c8-3834-4bf0-9c01-c469e3e36919" />
+<img width="1920" height="1080" alt="DSA Revision Tracker screenshot" src="https://github.com/user-attachments/assets/a364a6c8-3834-4bf0-9c01-c469e3e36919" />
 
 # DSA Revision Tracker
 
-[![CI](https://github.com/Anxhul10/dsa-revision-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/Anxhul10/dsa-revision-tracker/actions/workflows/ci.yml)
+A desktop-first app for tracking DSA interview problems with spaced repetition (2d → 7d → 21d → 60d → mastered). Built with **React**, **TypeScript**, **Vite**, **Tailwind CSS**, and **Tauri 2**, with **JSON-based** local storage and backup.
 
-Desktop app for tracking DSA problems with spaced repetition (2d → 7d → 21d → 60d → mastered). Built with **React + TypeScript + Vite** and packaged for **Linux (Fedora)** and **Windows** using **[Tauri 2](https://v2.tauri.app/)** (native WebView shell, small install size).
+**Repository:** [github.com/Anxhul10/dsa-revision-tracker](https://github.com/Anxhul10/dsa-revision-tracker)  
+**Note:** This repository is currently **private**. Clone access requires permission from the owner.
 
-## Stack
+---
 
-| Layer | Technology |
-|-------|------------|
-| UI | React 18, TypeScript, Tailwind CSS, Recharts |
-| Build | Vite |
-| Desktop | Tauri 2 (Rust) |
-| Data | `localStorage` (per install) |
-| Backup | Native file dialogs on desktop; browser download in web dev |
+## Installation
 
-## Prerequisites
+Install **Node.js 18+** and **npm** before cloning the project. These steps cover runtime prerequisites only.
 
-### All platforms
+### Linux
 
-- [Node.js](https://nodejs.org/) 18+
-- [Rust](https://www.rust-lang.org/tools/install) (via [rustup](https://rustup.rs/))
+Tested on **Fedora Linux**. Should also work on Ubuntu, Debian, Arch Linux, Pop!_OS, and other modern distributions.
 
-### Fedora Linux (build from source)
+**Fedora / RHEL**
 
 ```bash
-sudo dnf install \
-  webkit2gtk4.1-devel \
-  libsoup3-devel \
-  openssl-devel \
-  curl \
-  wget \
-  file \
-  libappindicator-gtk3-devel \
-  librsvg2-devel \
-  gcc \
-  gcc-c++ \
-  make
+sudo dnf install nodejs npm
 ```
 
-If `pkg-config` cannot find `javascriptcoregtk-4.1`, install `webkit2gtk4.1-devel` and retry the build.
-
-### Windows (build from source)
-
-- [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
-- [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) (usually preinstalled on Windows 10/11)
-
-## Development
-
-Install dependencies:
+**Ubuntu / Debian**
 
 ```bash
+sudo apt update
+sudo apt install nodejs npm
+```
+
+**Arch Linux**
+
+```bash
+sudo pacman -S nodejs npm
+```
+
+Verify:
+
+```bash
+node --version
+npm --version
+```
+
+> **Desktop builds (optional):** To compile the native app on Linux, also install [Rust](https://rustup.rs/) and Fedora build deps (`webkit2gtk4.1-devel`, `libsoup3-devel`, etc.). Web-only development needs only Node.js and npm.
+
+### Windows
+
+1. Download **Node.js LTS** from [nodejs.org](https://nodejs.org/).
+2. Run the installer (include **npm** and “Add to PATH”).
+3. Open **PowerShell** or **Command Prompt** and verify:
+
+```powershell
+node --version
+npm --version
+```
+
+> **Desktop builds (optional):** Install [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) and [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) to run `npm run desktop:dev`.
+
+### macOS
+
+Install Node.js with [Homebrew](https://brew.sh/):
+
+```bash
+brew install node
+```
+
+Verify:
+
+```bash
+node --version
+npm --version
+```
+
+> **Desktop builds (optional):** Install Rust via [rustup.rs](https://rustup.rs/) for the Tauri desktop shell on macOS.
+
+---
+
+## Development Setup
+
+### Linux
+
+```bash
+git clone https://github.com/Anxhul10/dsa-revision-tracker.git
+cd dsa-revision-tracker
 npm install
 ```
 
-### Desktop app (recommended)
-
-```bash
-npm run desktop:dev
-```
-
-### Web only (browser, no Tauri)
+**Web UI only**
 
 ```bash
 npm run dev
 ```
 
-Open http://localhost:1420
-
-## Build installers
+**Full desktop app (Tauri)**
 
 ```bash
-npm run desktop:build
+source "$HOME/.cargo/env"   # if Rust was just installed
+npm run desktop:dev
 ```
 
-Artifacts are written to `src-tauri/target/release/bundle/`:
+### Windows
 
-| OS | Outputs |
-|----|---------|
-| **Fedora / Linux** | `.rpm`, `.deb`, `.AppImage` |
-| **Windows** | `.msi`, `.exe` (setup-nsis) |
-
-### Cross-compile notes
-
-- Build **Linux** packages on Fedora/Linux.
-- Build **Windows** `.exe` / `.msi` on Windows (or use a Windows CI runner).
-- Tauri does not require shipping Chromium; it uses the system WebView (WebKitGTK on Linux, WebView2 on Windows).
-
-## Features
-
-- **Day counter** — advance study day (+/− or `]` / `[`) with linked calendar date
-- **Question table** — sort by due/overdue, color-coded rows
-- **Spaced repetition** — 2d, 7d, 21d, 60d intervals
-- **Filters & search** — topic, platform, difficulty, due today
-- **Stats & charts** — totals, topic bar chart, difficulty pie chart
-- **Backup** — export/import JSON via native file picker in the desktop app
-- **Shortcuts** — `n` add question, `/` search, `]`/`[` day ±
-
-## Data
-
-Stored locally under the key `dsa-revision-tracker` in the app’s WebView storage. Use **Export JSON** before reinstalling or moving machines.
-
-## CI
-
-GitHub Actions runs on every push and pull request to `main` / `master`:
-
-| Job | Checks |
-|-----|--------|
-| **Frontend** | `npm ci`, TypeScript compile, Vite production build |
-| **Desktop (Linux)** | Tauri compile on Ubuntu (Fedora-compatible stack) |
-| **Desktop (Windows)** | Tauri compile on Windows |
-
-Installers are not produced in CI (`--no-bundle`); local `npm run desktop:build` still creates `.rpm` / `.exe` bundles.
-
-## Project layout
-
+```powershell
+git clone https://github.com/Anxhul10/dsa-revision-tracker.git
+cd dsa-revision-tracker
+npm install
 ```
-src/           React UI
-src-tauri/     Tauri / Rust desktop shell
-public/        Static assets
-.github/       CI workflows
+
+**Web UI only**
+
+```powershell
+npm run dev
 ```
+
+**Full desktop app (Tauri)**
+
+```powershell
+npm run desktop:dev
+```
+
+### macOS
+
+```bash
+git clone https://github.com/Anxhul10/dsa-revision-tracker.git
+cd dsa-revision-tracker
+npm install
+```
+
+**Web UI only**
+
+```bash
+npm run dev
+```
+
+**Full desktop app (Tauri)**
+
+```bash
+npm run desktop:dev
+```
+
+---
+
+## Running the Project
+
+| Command | What it does |
+|---------|----------------|
+| `npm run dev` | Starts the Vite dev server (browser) |
+| `npm run desktop:dev` | Runs the Tauri desktop app with hot reload |
+| `npm run build` | Production build of the frontend |
+| `npm run desktop:build` | Builds installable desktop packages (`.rpm`, `.deb`, `.msi`, `.exe`) |
+
+**Local URL (web dev):** [http://localhost:1420](http://localhost:1420)
+
+Open that address in your browser after `npm run dev`. The desktop app opens its own window when you use `npm run desktop:dev`.
+
+**Data:** Progress is stored locally (`localStorage`). Use **Export JSON** / **Import JSON** in the app to back up or move your data.
+
+---
+
+## License
+
+This project is private. Licensing and redistribution terms are defined by the repository owner. Contact the maintainer for permission to use, fork, or distribute the code.
