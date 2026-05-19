@@ -1,5 +1,4 @@
 import type { Question } from '../types';
-import { getReviewStatus } from './revision';
 
 export interface DashboardStats {
   total: number;
