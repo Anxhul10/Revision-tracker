@@ -159,6 +159,99 @@ Open that address in your browser after `npm run dev`. The desktop app opens its
 
 ---
 
+## Installing Built Desktop Packages
+
+After building the desktop app, installable packages are generated under:
+
+```text
+src-tauri/target/release/bundle/
+```
+
+Build the packages from the project root:
+
+```bash
+npm run desktop:build
+```
+
+List the generated files:
+
+```bash
+ls src-tauri/target/release/bundle/rpm/
+ls src-tauri/target/release/bundle/deb/
+ls src-tauri/target/release/bundle/msi/
+ls src-tauri/target/release/bundle/nsis/
+ls src-tauri/target/release/bundle/dmg/
+```
+
+File names include the app version (for example `1.0.0`). Replace `<generated-file>` below with the actual file name on your machine.
+
+### Fedora / RHEL (`.rpm`)
+
+From the project root:
+
+```bash
+sudo dnf install "./src-tauri/target/release/bundle/rpm/<generated-file>.rpm"
+```
+
+Example:
+
+```bash
+sudo dnf install "./src-tauri/target/release/bundle/rpm/DSA Revision Tracker-1.0.0-1.x86_64.rpm"
+```
+
+Launch **DSA Revision Tracker** from your applications menu.
+
+### Ubuntu / Debian (`.deb`)
+
+From the project root:
+
+```bash
+sudo dpkg -i "./src-tauri/target/release/bundle/deb/<generated-file>.deb"
+```
+
+If dependency errors appear, fix them with:
+
+```bash
+sudo apt --fix-broken install
+```
+
+Example:
+
+```bash
+sudo dpkg -i "./src-tauri/target/release/bundle/deb/DSA Revision Tracker_1.0.0_amd64.deb"
+sudo apt --fix-broken install
+```
+
+### Windows (`.msi` / `.exe`)
+
+Installers are created under:
+
+```text
+src-tauri\target\release\bundle\msi\
+src-tauri\target\release\bundle\nsis\
+```
+
+1. Open File Explorer and go to `src-tauri\target\release\bundle\`.
+2. Run the `.msi` installer, **or** run the `.exe` setup from the `nsis` folder.
+3. Follow the on-screen prompts.
+4. Launch **DSA Revision Tracker** from the Start menu.
+
+### macOS (`.dmg`)
+
+The disk image is created under:
+
+```text
+src-tauri/target/release/bundle/dmg/
+```
+
+1. Open the `.dmg` file (for example `DSA Revision Tracker_1.0.0_x64.dmg`).
+2. Drag **DSA Revision Tracker** into **Applications**.
+3. Open the app from Launchpad or Applications.
+
+> **Note:** Build Linux packages on Linux, Windows packages on Windows, and macOS packages on macOS. Cross-platform installers require building on each target OS (or CI).
+
+---
+
 ## License
 
 This project is private. Licensing and redistribution terms are defined by the repository owner. Contact the maintainer for permission to use, fork, or distribute the code.
