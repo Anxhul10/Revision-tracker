@@ -7,9 +7,12 @@ export async function exportBackupToFile(
   if (isTauri()) {
     const { save } = await import('@tauri-apps/plugin-dialog');
     const { writeTextFile } = await import('@tauri-apps/plugin-fs');
+    const { downloadDir, join } = await import('@tauri-apps/api/path');
+
+    const suggestedPath = await join(await downloadDir(), defaultName);
 
     const path = await save({
-      defaultPath: defaultName,
+      defaultPath: suggestedPath,
       filters: [{ name: 'JSON backup', extensions: ['json'] }],
     });
     if (!path) return false;
