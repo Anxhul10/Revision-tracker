@@ -38,9 +38,10 @@ export function createTheoryFromForm(form: AddTheoryForm, currentDay: number): T
 export function markTheoryReviewed(theory: TheoryItem, currentDay: number): TheoryItem {
   if (theory.completed) return theory;
 
+  const reviewedDay = Math.max(currentDay, theory.nextReviewDay);
+
   if (theory.revisionMode === 'loop') {
     const loopIntervalDays = Math.max(1, theory.loopIntervalDays ?? THEORY_INTERVALS['2d']);
-    const reviewedDay = Math.max(currentDay, theory.nextReviewDay);
     return {
       ...theory,
       loopIntervalDays,
@@ -61,14 +62,14 @@ export function markTheoryReviewed(theory: TheoryItem, currentDay: number): Theo
       ...theory,
       revisionStage: 'mastered',
       completed: true,
-      nextReviewDay: currentDay,
+      nextReviewDay: reviewedDay,
     };
   }
 
   return {
     ...theory,
     revisionStage: nextStage,
-    nextReviewDay: currentDay + THEORY_INTERVALS[nextStage],
+    nextReviewDay: reviewedDay + THEORY_INTERVALS[nextStage],
     completed: false,
   };
 }

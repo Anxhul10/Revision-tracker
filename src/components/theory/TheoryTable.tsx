@@ -29,6 +29,9 @@ export function TheoryTable({ theories, currentDay, onMarkReviewed }: TheoryTabl
         <thead>
           <tr className="border-b border-surface-border bg-surface-overlay/50">
             <th className="px-4 py-3 font-semibold text-gray-400">Title</th>
+            <th className="hidden px-4 py-3 font-semibold text-gray-400 md:table-cell">
+              Added
+            </th>
             <th className="px-4 py-3 font-semibold text-gray-400">Next Review</th>
             <th className="px-4 py-3 font-semibold text-gray-400">Mode</th>
             <th className="px-4 py-3 font-semibold text-gray-400">Actions</th>
@@ -57,6 +60,9 @@ export function TheoryTable({ theories, currentDay, onMarkReviewed }: TheoryTabl
                       ({currentDay - theory.nextReviewDay}d overdue)
                     </span>
                   )}
+                </td>
+                <td className="hidden px-4 py-3 text-sm text-gray-400 md:table-cell">
+                  Day {theory.addedDay}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-300">
                   {theory.completed ? '-' : `Day ${theory.nextReviewDay}`}
