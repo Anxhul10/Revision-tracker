@@ -27,6 +27,8 @@ const emptyForm: AddQuestionForm = {
   platform: 'LeetCode',
   topic: 'Arrays',
   difficulty: 'Medium',
+  loopEnabled: false,
+  loopIntervalDays: 2,
 };
 
 interface AddQuestionModalProps {
@@ -40,8 +42,9 @@ export function AddQuestionModal({ open, onClose, onSubmit }: AddQuestionModalPr
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    const loopIntervalDays = Math.max(1, Math.floor(Number(form.loopIntervalDays) || 1));
     if (!form.title.trim() || !form.link.trim()) return;
-    onSubmit(form);
+    onSubmit({ ...form, loopIntervalDays });
     setForm(emptyForm);
     onClose();
   };
@@ -119,6 +122,42 @@ export function AddQuestionModal({ open, onClose, onSubmit }: AddQuestionModalPr
               ))}
             </select>
           </div>
+        </div>
+        <div className="rounded-lg border border-surface-border bg-surface-overlay/40 p-3">
+          <label className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={form.loopEnabled}
+              onChange={(e) => setForm({ ...form, loopEnabled: e.target.checked })}
+              className="h-4 w-4 rounded border-surface-border bg-surface-overlay text-accent focus:ring-accent/50"
+            />
+            <span className="text-sm font-medium text-gray-300">Loop review schedule</span>
+          </label>
+          {form.loopEnabled && (
+            <div className="mt-3">
+              <label className="mb-1.5 block text-xs font-medium text-gray-400">
+                Review every days
+              </label>
+              <input
+                required
+                min={1}
+                step={1}
+                type="number"
+                value={form.loopIntervalDays}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    loopIntervalDays: Math.max(1, Math.floor(Number(e.target.value) || 1)),
+                  })
+                }
+                className={inputClass}
+                placeholder="2"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                After each review, the next review is scheduled this many days later.
+              </p>
+            </div>
+          )}
         </div>
         <div className="flex justify-end gap-2 pt-2">
           <Button variant="ghost" onClick={onClose} type="button">

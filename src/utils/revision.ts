@@ -20,22 +20,43 @@ export function getIntervalForStage(stage: RevisionStage): number {
   return REVISION_INTERVALS[stage];
 }
 
+export function getLoopInterval(question: Question): number {
+  return Math.max(1, question.loopIntervalDays ?? REVISION_INTERVALS['2d']);
+}
+
 export function createQuestionFromForm(
   form: Omit<Question, 'id' | 'solvedDay' | 'nextReviewDay' | 'revisionStage' | 'completed'> & {
     solvedDay: number;
   }
 ): Omit<Question, 'id'> {
+  const loopIntervalDays = Math.max(1, form.loopIntervalDays ?? REVISION_INTERVALS['2d']);
   return {
     ...form,
     solvedDay: form.solvedDay,
-    nextReviewDay: form.solvedDay + REVISION_INTERVALS['2d'],
+    nextReviewDay:
+      form.solvedDay + (form.loopEnabled ? loopIntervalDays : REVISION_INTERVALS['2d']),
     revisionStage: '2d',
     completed: false,
+    loopIntervalDays: form.loopEnabled ? loopIntervalDays : undefined,
+    loopReviewCount: form.loopEnabled ? form.loopReviewCount ?? 0 : undefined,
   };
 }
 
 export function markReviewed(question: Question, currentDay: number): Question {
   if (question.completed) return question;
+
+  if (question.loopEnabled) {
+    const nextReviewCount = Math.max(0, question.loopReviewCount ?? 0) + 1;
+    const baseInterval = Math.max(1, question.loopIntervalDays ?? REVISION_INTERVALS['2d']);
+    const reviewedDay = Math.max(currentDay, question.nextReviewDay);
+    return {
+      ...question,
+      loopIntervalDays: baseInterval,
+      loopReviewCount: nextReviewCount,
+      nextReviewDay: reviewedDay + baseInterval,
+      completed: false,
+    };
+  }
 
   const nextStage = getNextStage(question.revisionStage);
 
@@ -89,4 +110,9 @@ export function sortQuestions(questions: Question[], currentDay: number): Questi
 export function formatRevisionStage(stage: RevisionStage): string {
   if (stage === 'mastered') return 'Mastered';
   return stage;
+}
+
+export function formatQuestionRevision(question: Question): string {
+  if (!question.loopEnabled) return formatRevisionStage(question.revisionStage);
+  return `Loop ${getLoopInterval(question)}d`;
 }

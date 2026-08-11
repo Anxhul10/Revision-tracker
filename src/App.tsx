@@ -13,7 +13,7 @@ import { ToastProvider, useToast } from './context/ToastContext';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import type { AddQuestionForm, Question, QuestionFilters } from './types';
-import { markReviewed } from './utils/revision';
+import { formatQuestionRevision, markReviewed } from './utils/revision';
 import { exportBackupToFile, importBackupFromFile } from './utils/backupFile';
 import { exportState, importState } from './utils/storage';
 import { dateForDay, formatDisplayDate, startDateForDay } from './utils/dates';
@@ -78,6 +78,8 @@ function AppContent() {
 
   const handleAddQuestion = useCallback(
     (form: AddQuestionForm) => {
+      const loopIntervalDays = Math.max(1, Math.floor(form.loopIntervalDays));
+      const firstReviewGap = form.loopEnabled ? loopIntervalDays : 2;
       const newQuestion: Question = {
         id: crypto.randomUUID(),
         title: form.title.trim(),
@@ -86,15 +88,21 @@ function AppContent() {
         topic: form.topic,
         difficulty: form.difficulty,
         solvedDay: currentDay,
-        nextReviewDay: currentDay + 2,
+        nextReviewDay: currentDay + firstReviewGap,
         revisionStage: '2d',
         completed: false,
+        loopEnabled: form.loopEnabled,
+        loopIntervalDays: form.loopEnabled ? loopIntervalDays : undefined,
+        loopReviewCount: form.loopEnabled ? 0 : undefined,
       };
       updateState((s) => ({
         ...s,
         questions: [...s.questions, newQuestion],
       }));
-      showToast(`Added "${newQuestion.title}" — review on Day ${currentDay + 2}`, 'success');
+      showToast(
+        `Added "${newQuestion.title}" — review on Day ${newQuestion.nextReviewDay}`,
+        'success'
+      );
     },
     [currentDay, updateState, showToast]
   );
@@ -107,7 +115,7 @@ function AppContent() {
         const updated = markReviewed(q, s.currentDay);
         const message = updated.completed
           ? `"${updated.title}" mastered!`
-          : `"${updated.title}" → next review Day ${updated.nextReviewDay} (${updated.revisionStage})`;
+          : `"${updated.title}" → next review Day ${updated.nextReviewDay} (${formatQuestionRevision(updated)})`;
         showToast(message, updated.completed ? 'success' : 'info');
         return {
           ...s,

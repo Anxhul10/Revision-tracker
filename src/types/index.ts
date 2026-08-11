@@ -13,6 +13,9 @@ export interface Question {
   nextReviewDay: number;
   revisionStage: RevisionStage;
   completed: boolean;
+  loopEnabled?: boolean;
+  loopIntervalDays?: number;
+  loopReviewCount?: number;
 }
 
 export interface AppState {
@@ -38,4 +41,6 @@ export interface AddQuestionForm {
   platform: string;
   topic: string;
   difficulty: Difficulty;
+  loopEnabled: boolean;
+  loopIntervalDays: number;
 }

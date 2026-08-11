@@ -1,7 +1,7 @@
 import type { Question } from '../../types';
 import { difficultyBadgeClass, formatDifficultyLabel } from '../../utils/difficulty';
 import { openExternalLink } from '../../utils/openLink';
-import { formatRevisionStage, getReviewStatus } from '../../utils/revision';
+import { formatQuestionRevision, getReviewStatus } from '../../utils/revision';
 import { Button } from '../ui/Button';
 
 interface QuestionRowProps {
@@ -45,7 +45,7 @@ export function QuestionRow({ question, currentDay, onMarkReviewed }: QuestionRo
         {question.completed ? '—' : `Day ${question.nextReviewDay}`}
       </td>
       <td className="hidden px-4 py-3 text-sm text-gray-400 xl:table-cell">
-        {formatRevisionStage(question.revisionStage)}
+        {formatQuestionRevision(question)}
       </td>
       <td className="px-4 py-3">
         <div className="flex flex-wrap items-center gap-2">
