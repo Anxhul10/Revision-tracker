@@ -32,6 +32,7 @@ function AppContent() {
   const { showToast } = useToast();
   const [filters, setFilters] = useState<QuestionFilters>(defaultFilters);
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const { currentDay, startDate, questions } = state;
@@ -51,6 +52,10 @@ function AppContent() {
   const difficulties = useMemo(
     () => getUniqueValues(questions, 'difficulty'),
     [questions]
+  );
+  const editingQuestion = useMemo(
+    () => questions.find((q) => q.id === editingQuestionId) ?? null,
+    [questions, editingQuestionId]
   );
 
   const incrementDay = useCallback(() => {
@@ -126,6 +131,61 @@ function AppContent() {
     [updateState, showToast]
   );
 
+  const handleUpdateQuestion = useCallback(
+    (id: string, form: AddQuestionForm) => {
+      updateState((s) => {
+        const q = s.questions.find((x) => x.id === id);
+        if (!q) return s;
+        const loopIntervalDays = Math.max(1, Math.floor(form.loopIntervalDays));
+        const loopDisabled = Boolean(q.loopEnabled) && !form.loopEnabled;
+        const loopEnabled = form.loopEnabled;
+        return {
+          ...s,
+          questions: s.questions.map((x) =>
+            x.id === id
+              ? {
+                  ...x,
+                  title: form.title.trim(),
+                  link: form.link.trim(),
+                  platform: form.platform,
+                  topic: form.topic,
+                  difficulty: form.difficulty,
+                  loopEnabled,
+                  loopIntervalDays: loopEnabled ? loopIntervalDays : undefined,
+                  loopReviewCount: loopEnabled ? x.loopReviewCount ?? 0 : undefined,
+                  revisionStage: loopDisabled ? 'mastered' : loopEnabled ? '2d' : x.revisionStage,
+                  completed: loopDisabled ? true : loopEnabled ? false : x.completed,
+                  nextReviewDay: loopDisabled
+                    ? s.currentDay
+                    : loopEnabled &&
+                        (!x.loopEnabled || x.loopIntervalDays !== loopIntervalDays || x.completed)
+                      ? s.currentDay + loopIntervalDays
+                      : x.nextReviewDay,
+                }
+              : x
+          ),
+        };
+      });
+      showToast(`Updated "${form.title.trim()}"`, 'success');
+    },
+    [updateState, showToast]
+  );
+
+  const handleDeleteQuestion = useCallback(
+    (id: string) => {
+      updateState((s) => {
+        const q = s.questions.find((x) => x.id === id);
+        if (!q) return s;
+        showToast(`Deleted "${q.title}"`, 'success');
+        return {
+          ...s,
+          questions: s.questions.filter((x) => x.id !== id),
+        };
+      });
+    },
+    [updateState, showToast]
+  );
+
   const handleExport = useCallback(async () => {
     const json = exportState(state);
     const defaultName = `dsa-revision-backup-day-${currentDay}.json`;
@@ -194,6 +254,7 @@ function AppContent() {
               currentDay={currentDay}
               filters={filters}
               onMarkReviewed={handleMarkReviewed}
+              onEdit={setEditingQuestionId}
             />
           </div>
         </div>
@@ -206,6 +267,17 @@ function AppContent() {
         open={addModalOpen}
         onClose={() => setAddModalOpen(false)}
         onSubmit={handleAddQuestion}
+      />
+      <AddQuestionModal
+        open={Boolean(editingQuestion)}
+        onClose={() => setEditingQuestionId(null)}
+        onSubmit={(form) => {
+          if (!editingQuestion) return;
+          handleUpdateQuestion(editingQuestion.id, form);
+          setEditingQuestionId(null);
+        }}
+        question={editingQuestion}
+        onDelete={handleDeleteQuestion}
       />
     </div>
   );

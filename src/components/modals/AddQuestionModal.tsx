@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react';
-import type { AddQuestionForm, Difficulty } from '../../types';
+import { useEffect, useState, type FormEvent } from 'react';
+import type { AddQuestionForm, Difficulty, Question } from '../../types';
 import { Button } from '../ui/Button';
 import { Modal } from '../ui/Modal';
 
@@ -39,10 +39,36 @@ interface AddQuestionModalProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (form: AddQuestionForm) => void;
+  question?: Question | null;
+  onDelete?: (id: string) => void;
 }
 
-export function AddQuestionModal({ open, onClose, onSubmit }: AddQuestionModalProps) {
+function formFromQuestion(question: Question | null | undefined): AddQuestionModalForm {
+  if (!question) return emptyForm;
+  return {
+    title: question.title,
+    link: question.link,
+    platform: question.platform,
+    topic: question.topic,
+    difficulty: question.difficulty,
+    loopEnabled: Boolean(question.loopEnabled),
+    loopIntervalDays: String(question.loopIntervalDays ?? 2),
+  };
+}
+
+export function AddQuestionModal({
+  open,
+  onClose,
+  onSubmit,
+  question,
+  onDelete,
+}: AddQuestionModalProps) {
   const [form, setForm] = useState<AddQuestionModalForm>(emptyForm);
+  const isEditing = Boolean(question);
+
+  useEffect(() => {
+    if (open) setForm(formFromQuestion(question));
+  }, [open, question]);
 
   const loopIntervalDays = Number(form.loopIntervalDays);
   const hasValidLoopInterval =
@@ -54,7 +80,14 @@ export function AddQuestionModal({ open, onClose, onSubmit }: AddQuestionModalPr
     e.preventDefault();
     if (!canSubmit) return;
     onSubmit({ ...form, loopIntervalDays });
-    setForm(emptyForm);
+    onClose();
+  };
+
+  const handleDelete = () => {
+    if (!question || !onDelete) return;
+    const confirmed = window.confirm(`Delete "${question.title}"?`);
+    if (!confirmed) return;
+    onDelete(question.id);
     onClose();
   };
 
@@ -63,7 +96,7 @@ export function AddQuestionModal({ open, onClose, onSubmit }: AddQuestionModalPr
   const selectClass = `app-select ${inputClass}`;
 
   return (
-    <Modal open={open} onClose={onClose} title="Add Question">
+    <Modal open={open} onClose={onClose} title={isEditing ? 'Edit Question' : 'Add Question'}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="mb-1.5 block text-xs font-medium text-gray-400">Title</label>
@@ -169,13 +202,20 @@ export function AddQuestionModal({ open, onClose, onSubmit }: AddQuestionModalPr
             </div>
           )}
         </div>
-        <div className="flex justify-end gap-2 pt-2">
+        <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:items-center sm:justify-between">
+          {isEditing && (
+            <Button variant="danger" onClick={handleDelete} type="button">
+              Delete
+            </Button>
+          )}
+          <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={onClose} type="button">
             Cancel
           </Button>
           <Button variant="primary" type="submit" disabled={!canSubmit}>
-            Add Question
+            {isEditing ? 'Save Changes' : 'Add Question'}
           </Button>
+          </div>
         </div>
       </form>
     </Modal>

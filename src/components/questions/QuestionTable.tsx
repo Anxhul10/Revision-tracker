@@ -7,6 +7,7 @@ interface QuestionTableProps {
   currentDay: number;
   filters: QuestionFilters;
   onMarkReviewed: (id: string) => void;
+  onEdit: (id: string) => void;
 }
 
 function filterQuestions(
@@ -36,6 +37,7 @@ export function QuestionTable({
   currentDay,
   filters,
   onMarkReviewed,
+  onEdit,
 }: QuestionTableProps) {
   const filtered = filterQuestions(questions, filters, currentDay);
   const sorted = sortQuestions(filtered, currentDay);
@@ -71,6 +73,7 @@ export function QuestionTable({
               question={q}
               currentDay={currentDay}
               onMarkReviewed={onMarkReviewed}
+              onEdit={onEdit}
             />
           ))}
         </tbody>

@@ -8,6 +8,7 @@ interface QuestionRowProps {
   question: Question;
   currentDay: number;
   onMarkReviewed: (id: string) => void;
+  onEdit: (id: string) => void;
 }
 
 const statusStyles = {
@@ -17,7 +18,12 @@ const statusStyles = {
   completed: 'border-l-emerald-500 bg-emerald-500/5',
 };
 
-export function QuestionRow({ question, currentDay, onMarkReviewed }: QuestionRowProps) {
+export function QuestionRow({
+  question,
+  currentDay,
+  onMarkReviewed,
+  onEdit,
+}: QuestionRowProps) {
   const status = getReviewStatus(question, currentDay);
   const rowClass = statusStyles[status];
 
@@ -56,6 +62,9 @@ export function QuestionRow({ question, currentDay, onMarkReviewed }: QuestionRo
           >
             Open
           </button>
+          <Button variant="secondary" size="sm" onClick={() => onEdit(question.id)}>
+            Edit
+          </Button>
           {!question.completed && (
             <Button
               variant="success"
