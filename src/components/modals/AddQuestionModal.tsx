@@ -21,14 +21,18 @@ const TOPICS = [
 ];
 const DIFFICULTIES: Difficulty[] = ['Easy', 'Medium', 'Hard'];
 
-const emptyForm: AddQuestionForm = {
+type AddQuestionModalForm = Omit<AddQuestionForm, 'loopIntervalDays'> & {
+  loopIntervalDays: string;
+};
+
+const emptyForm: AddQuestionModalForm = {
   title: '',
   link: '',
   platform: 'LeetCode',
   topic: 'Arrays',
   difficulty: 'Medium',
   loopEnabled: false,
-  loopIntervalDays: 2,
+  loopIntervalDays: '2',
 };
 
 interface AddQuestionModalProps {
@@ -38,12 +42,17 @@ interface AddQuestionModalProps {
 }
 
 export function AddQuestionModal({ open, onClose, onSubmit }: AddQuestionModalProps) {
-  const [form, setForm] = useState<AddQuestionForm>(emptyForm);
+  const [form, setForm] = useState<AddQuestionModalForm>(emptyForm);
+
+  const loopIntervalDays = Number(form.loopIntervalDays);
+  const hasValidLoopInterval =
+    !form.loopEnabled ||
+    (/^[1-9]\d*$/.test(form.loopIntervalDays) && Number.isSafeInteger(loopIntervalDays));
+  const canSubmit = Boolean(form.title.trim() && form.link.trim() && hasValidLoopInterval);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const loopIntervalDays = Math.max(1, Math.floor(Number(form.loopIntervalDays) || 1));
-    if (!form.title.trim() || !form.link.trim()) return;
+    if (!canSubmit) return;
     onSubmit({ ...form, loopIntervalDays });
     setForm(emptyForm);
     onClose();
@@ -140,17 +149,18 @@ export function AddQuestionModal({ open, onClose, onSubmit }: AddQuestionModalPr
               </label>
               <input
                 required
-                min={1}
-                step={1}
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="[1-9][0-9]*"
                 value={form.loopIntervalDays}
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    loopIntervalDays: Math.max(1, Math.floor(Number(e.target.value) || 1)),
+                    loopIntervalDays: e.target.value,
                   })
                 }
-                className={inputClass}
+                aria-invalid={!hasValidLoopInterval}
+                className={`${inputClass} no-number-spinner`}
                 placeholder="2"
               />
               <p className="mt-1 text-xs text-gray-500">
@@ -163,7 +173,7 @@ export function AddQuestionModal({ open, onClose, onSubmit }: AddQuestionModalPr
           <Button variant="ghost" onClick={onClose} type="button">
             Cancel
           </Button>
-          <Button variant="primary" type="submit">
+          <Button variant="primary" type="submit" disabled={!canSubmit}>
             Add Question
           </Button>
         </div>
