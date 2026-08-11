@@ -34,7 +34,14 @@ export function createQuestionFromForm(
   };
 }
 
-export function markReviewed(question: Question, currentDay: number): Question {
+/**
+ * Advance a revision from the day it was actually completed.
+ *
+ * `completionDay` must be the current app day at the time the user clicks
+ * Reviewed. In particular, it must not be replaced with `nextReviewDay`:
+ * that value is the previous due day and is only relevant to overdue status.
+ */
+export function markReviewed(question: Question, completionDay: number): Question {
   if (question.completed) return question;
 
   const nextStage = getNextStage(question.revisionStage);
@@ -44,7 +51,7 @@ export function markReviewed(question: Question, currentDay: number): Question {
       ...question,
       revisionStage: 'mastered',
       completed: true,
-      nextReviewDay: currentDay,
+      nextReviewDay: completionDay,
     };
   }
 
@@ -52,7 +59,7 @@ export function markReviewed(question: Question, currentDay: number): Question {
   return {
     ...question,
     revisionStage: nextStage,
-    nextReviewDay: currentDay + interval,
+    nextReviewDay: completionDay + interval,
     completed: false,
   };
 }
