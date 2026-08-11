@@ -13,11 +13,12 @@ const cards: {
   { key: 'dueToday', label: 'Due Today', accent: 'text-red-400' },
   { key: 'completed', label: 'Completed', accent: 'text-emerald-400' },
   { key: 'mostPracticedTopic', label: 'Top Topic', accent: 'text-amber-400' },
+  { key: 'theory', label: 'Theory', accent: 'text-cyan-400' },
 ];
 
 export function StatCards({ stats }: StatCardsProps) {
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
       {cards.map(({ key, label, accent }) => (
         <div
           key={key}

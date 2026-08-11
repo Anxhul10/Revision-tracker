@@ -7,6 +7,7 @@ const DEFAULT_STATE: AppState = {
   currentDay: 1,
   startDate: todayIso(),
   questions: [],
+  theories: [],
 };
 
 export function loadState(): AppState {
@@ -22,6 +23,7 @@ export function loadState(): AppState {
           ? parsed.startDate
           : inferStartDate(currentDay),
       questions: Array.isArray(parsed.questions) ? parsed.questions : [],
+      theories: Array.isArray(parsed.theories) ? parsed.theories : [],
     };
   } catch {
     return { ...DEFAULT_STATE };
@@ -49,5 +51,6 @@ export function importState(json: string): AppState {
         ? parsed.startDate
         : inferStartDate(currentDay),
     questions: parsed.questions,
+    theories: Array.isArray(parsed.theories) ? parsed.theories : [],
   };
 }
