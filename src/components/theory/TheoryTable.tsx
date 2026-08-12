@@ -49,7 +49,7 @@ export function TheoryTable({ theories, currentDay, onMarkReviewed }: TheoryTabl
                     : overdue
                       ? 'border-l-red-500 bg-red-500/5'
                       : theory.nextReviewDay === currentDay
-                        ? 'border-l-red-400 bg-red-500/8'
+                        ? 'border-l-red-400 bg-red-500/10'
                         : 'border-l-amber-500/70 bg-amber-500/5'
                 }`}
               >
