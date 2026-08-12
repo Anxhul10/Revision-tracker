@@ -1,5 +1,8 @@
 <img width="1920" height="1080" alt="DSA Revision Tracker screenshot" src="https://github.com/user-attachments/assets/a364a6c8-3834-4bf0-9c01-c469e3e36919" />
 
+# Installation Video (Linux)
+https://github.com/user-attachments/assets/8585764f-a342-428c-a736-62c06068f00c
+
 # DSA Revision Tracker
 
 DSA Revision Tracker is a local-first spaced repetition app for interview prep. It tracks coding questions and theory notes separately, supports normal revision schedules and custom loop schedules, and can run as either a browser-based Vite app or a native Linux desktop app with Tauri 2.
