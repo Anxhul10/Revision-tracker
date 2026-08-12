@@ -1,7 +1,7 @@
 {
   "name": "dsa-revision-tracker",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,6 +10,7 @@
     "tauri": "tauri",
     "desktop:dev": "tauri dev",
     "desktop:build": "tauri build",
+    "desktop:appimage": "tauri build --bundles appimage",
     "desktop:build:ci": "tauri build --no-bundle"
   },
   "dependencies": {

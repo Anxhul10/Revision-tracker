@@ -2,84 +2,196 @@
 
 # DSA Revision Tracker
 
-A desktop-first app for tracking DSA interview problems with spaced repetition (2d → 7d → 21d → 60d → mastered). Built with **React**, **TypeScript**, **Vite**, **Tailwind CSS**, and **Tauri 2**, with **JSON-based** local storage and backup.
+DSA Revision Tracker is a local-first spaced repetition app for interview prep. It tracks coding questions and theory notes separately, supports normal revision schedules and custom loop schedules, and can run as either a browser-based Vite app or a native Linux desktop app with Tauri 2.
 
-**Repository:** [github.com/Anxhul10/dsa-revision-tracker](https://github.com/Anxhul10/dsa-revision-tracker)  
-**Note:** This repository is currently **private**. Clone access requires permission from the owner.
+Repository: [github.com/Anxhul10/dsa-revision-tracker](https://github.com/Anxhul10/dsa-revision-tracker)
 
----
+## Features
 
-## Installation
+- Track coding questions with title, problem link, platform, topic, and difficulty.
+- Track theory notes with title and notes link.
+- Separate collapsible `Questions` and `Theory` sections.
+- Dashboard cards for total questions, due today, completed, top topic, and theory count.
+- Normal coding question revision schedule: `2d -> 7d -> 21d -> 60d -> Mastered`.
+- Normal theory revision schedule: `2d -> 7d -> 21d -> 30d -> 60d -> Mastered`.
+- Loop mode for questions and theory notes, where the item repeats every custom number of days.
+- Edit any question after adding it.
+- Delete questions from the edit modal.
+- Mark items as reviewed and automatically schedule their next review.
+- Filters for questions by search, topic, platform, difficulty, and due/overdue state.
+- JSON export/import backup.
+- Local storage only. Your data stays on your machine unless you export it.
 
-Install **Node.js 18+** and **npm** before cloning the project. These steps cover runtime prerequisites only.
+## Examples
 
-### Linux
+### Normal Question
 
-Tested on **Fedora Linux**. Should also work on Ubuntu, Debian, Arch Linux, Pop!_OS, and other modern distributions.
+If today is Day `1` and you add:
 
-**Fedora / RHEL**
-
-```bash
-sudo dnf install nodejs npm
+```text
+Title: Two Sum
+Link: https://leetcode.com/problems/two-sum/
+Platform: LeetCode
+Topic: Arrays
+Difficulty: Easy
+Loop: off
 ```
 
-**Ubuntu / Debian**
+The first review is scheduled for Day `3` because `1 + 2 = 3`.
+
+After reviewing, it follows:
+
+```text
+Day 3  -> next Day 10  (3 + 7)
+Day 10 -> next Day 31  (10 + 21)
+Day 31 -> next Day 91  (31 + 60)
+Day 91 -> Mastered
+```
+
+### Loop Question
+
+If today is Day `64`, you add a question with Loop enabled and `Review every days = 1`, it is first due on Day `65`.
+
+If you click `Reviewed` while current day is still Day `64`, the next review becomes Day `66`, because the app uses the later of current day and scheduled review day:
+
+```text
+max(64, 65) + 1 = 66
+```
+
+### Theory Note
+
+If today is Day `1` and you add:
+
+```text
+Title: Graph traversal notes
+Link to notes: https://...
+Revision mode: Normal
+```
+
+The theory item is reviewed on:
+
+```text
+Day 3, Day 10, Day 31, Day 61, Day 121, then Mastered
+```
+
+## Requirements
+
+For web development:
+
+- Node.js 18+
+- npm
+
+For the native desktop app:
+
+- Node.js 18+
+- npm
+- Rust toolchain
+- Tauri Linux system dependencies
+
+Install Rust with:
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
+```
+
+## Linux Setup
+
+The desktop app uses Tauri 2. Tauri 2 requires WebKitGTK 4.1 on Linux. The dependency commands below follow the official Tauri v2 Linux prerequisites.
+
+### Ubuntu / Debian / Linux Mint / Pop!_OS / Kali
+
+Kali is Debian-based, so use the Debian/Ubuntu dependency set.
 
 ```bash
 sudo apt update
-sudo apt install nodejs npm
+sudo apt install -y nodejs npm
+sudo apt install -y libwebkit2gtk-4.1-dev \
+  build-essential \
+  curl \
+  wget \
+  file \
+  libxdo-dev \
+  libssl-dev \
+  libayatana-appindicator3-dev \
+  librsvg2-dev
 ```
 
-**Arch Linux**
-
-```bash
-sudo pacman -S nodejs npm
-```
-
-Verify:
-
-```bash
-node --version
-npm --version
-```
-
-> **Desktop builds (optional):** To compile the native app on Linux, also install [Rust](https://rustup.rs/) and Fedora build deps (`webkit2gtk4.1-devel`, `libsoup3-devel`, etc.). Web-only development needs only Node.js and npm.
-
-### Windows
-
-1. Download **Node.js LTS** from [nodejs.org](https://nodejs.org/).
-2. Run the installer (include **npm** and “Add to PATH”).
-3. Open **PowerShell** or **Command Prompt** and verify:
-
-```powershell
-node --version
-npm --version
-```
-
-> **Desktop builds (optional):** Install [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) and [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) to run `npm run desktop:dev`.
-
-### macOS
-
-Install Node.js with [Homebrew](https://brew.sh/):
-
-```bash
-brew install node
-```
-
-Verify:
+If your distro ships an old Node.js version, install Node.js LTS from NodeSource or `nvm`, then verify:
 
 ```bash
 node --version
 npm --version
 ```
 
-> **Desktop builds (optional):** Install Rust via [rustup.rs](https://rustup.rs/) for the Tauri desktop shell on macOS.
+### Fedora
 
----
+```bash
+sudo dnf install -y nodejs npm
+sudo dnf install -y webkit2gtk4.1-devel \
+  openssl-devel \
+  curl \
+  wget \
+  file \
+  libappindicator-gtk3-devel \
+  librsvg2-devel \
+  libxdo-devel
+sudo dnf group install -y "c-development"
+```
 
-## Development Setup
+### Arch Linux / Manjaro / EndeavourOS
 
-### Linux
+```bash
+sudo pacman -Syu
+sudo pacman -S --needed nodejs npm rustup
+rustup default stable
+sudo pacman -S --needed \
+  webkit2gtk-4.1 \
+  base-devel \
+  curl \
+  wget \
+  file \
+  openssl \
+  appmenu-gtk-module \
+  libappindicator-gtk3 \
+  librsvg \
+  xdotool
+```
+
+### openSUSE
+
+```bash
+sudo zypper refresh
+sudo zypper install nodejs npm
+sudo zypper install webkit2gtk3-devel \
+  libopenssl-devel \
+  curl \
+  wget \
+  file \
+  libappindicator3-1 \
+  librsvg-devel
+sudo zypper install -t pattern devel_basis
+```
+
+### Alpine
+
+```bash
+sudo apk add nodejs npm
+sudo apk add \
+  build-base \
+  webkit2gtk-4.1-dev \
+  curl \
+  wget \
+  file \
+  openssl \
+  libayatana-appindicator-dev \
+  librsvg \
+  font-dejavu
+```
+
+## Install and Run From Source
+
+Clone and install dependencies:
 
 ```bash
 git clone https://github.com/Anxhul10/dsa-revision-tracker.git
@@ -87,171 +199,150 @@ cd dsa-revision-tracker
 npm install
 ```
 
-**Web UI only**
+Run in the browser:
 
 ```bash
 npm run dev
 ```
 
-**Full desktop app (Tauri)**
-
-```bash
-source "$HOME/.cargo/env"   # if Rust was just installed
-npm run desktop:dev
-```
-
-### Windows
-
-```powershell
-git clone https://github.com/Anxhul10/dsa-revision-tracker.git
-cd dsa-revision-tracker
-npm install
-```
-
-**Web UI only**
-
-```powershell
-npm run dev
-```
-
-**Full desktop app (Tauri)**
-
-```powershell
-npm run desktop:dev
-```
-
-### macOS
-
-```bash
-git clone https://github.com/Anxhul10/dsa-revision-tracker.git
-cd dsa-revision-tracker
-npm install
-```
-
-**Web UI only**
-
-```bash
-npm run dev
-```
-
-**Full desktop app (Tauri)**
-
-```bash
-npm run desktop:dev
-```
-
----
-
-## Running the Project
-
-| Command | What it does |
-|---------|----------------|
-| `npm run dev` | Starts the Vite dev server (browser) |
-| `npm run desktop:dev` | Runs the Tauri desktop app with hot reload |
-| `npm run build` | Production build of the frontend |
-| `npm run desktop:build` | Builds installable desktop packages (`.rpm`, `.deb`, `.msi`, `.exe`) |
-
-**Local URL (web dev):** [http://localhost:1420](http://localhost:1420)
-
-Open that address in your browser after `npm run dev`. The desktop app opens its own window when you use `npm run desktop:dev`.
-
-**Data:** Progress is stored locally (`localStorage`). Use **Export JSON** / **Import JSON** in the app to back up or move your data.
-
----
-
-## Installing Built Desktop Packages
-
-After building the desktop app, installable packages are generated under:
+Open:
 
 ```text
-src-tauri/target/release/bundle/
+http://localhost:1420
 ```
 
-Build the packages from the project root:
+Run the Linux desktop app:
+
+```bash
+npm run desktop:dev
+```
+
+Build the frontend:
+
+```bash
+npm run build
+```
+
+Build desktop packages:
 
 ```bash
 npm run desktop:build
 ```
 
-List the generated files:
+Build only the portable Linux AppImage:
 
 ```bash
-ls src-tauri/target/release/bundle/rpm/
-ls src-tauri/target/release/bundle/deb/
-ls src-tauri/target/release/bundle/msi/
-ls src-tauri/target/release/bundle/nsis/
-ls src-tauri/target/release/bundle/dmg/
+npm run desktop:appimage
 ```
 
-File names include the app version (for example `1.0.0`). Replace `<generated-file>` below with the actual file name on your machine.
+Generated Linux packages are placed under:
 
-### Fedora / RHEL (`.rpm`)
-
-From the project root:
-
-```bash
-sudo dnf install "./src-tauri/target/release/bundle/rpm/<generated-file>.rpm"
+```text
+src-tauri/target/release/bundle/
 ```
 
-Example:
+The AppImage is created at:
 
-```bash
-sudo dnf install "./src-tauri/target/release/bundle/rpm/DSA Revision Tracker-1.0.0-1.x86_64.rpm"
+```text
+src-tauri/target/release/bundle/appimage/
 ```
 
-Launch **DSA Revision Tracker** from your applications menu.
+### Running the AppImage on Linux
 
-### Ubuntu / Debian (`.deb`)
-
-From the project root:
+Make it executable and run it:
 
 ```bash
-sudo dpkg -i "./src-tauri/target/release/bundle/deb/<generated-file>.deb"
+chmod +x "src-tauri/target/release/bundle/appimage/<generated-file>.AppImage"
+./"src-tauri/target/release/bundle/appimage/<generated-file>.AppImage"
 ```
 
-If dependency errors appear, fix them with:
+The same AppImage can be copied to most x86_64 Linux distributions, including Ubuntu, Debian, Kali, Fedora, Arch, and openSUSE. Some systems need FUSE support to launch AppImages. On Ubuntu/Debian/Kali, install it with:
 
 ```bash
+sudo apt update
+sudo apt install libfuse2
+```
+
+On newer Ubuntu releases where `libfuse2` is unavailable, try:
+
+```bash
+sudo apt install libfuse2t64
+```
+
+AppImages are architecture-specific. Build an x86_64 AppImage on an x86_64 machine; ARM users need an ARM build. For the widest compatibility, build on an older supported Linux distribution because the binary depends on the build system's glibc baseline.
+
+## Installing Built Packages
+
+### Debian / Ubuntu / Kali `.deb`
+
+```bash
+sudo dpkg -i "src-tauri/target/release/bundle/deb/<generated-file>.deb"
 sudo apt --fix-broken install
 ```
 
-Example:
+### Fedora `.rpm`
 
 ```bash
-sudo dpkg -i "./src-tauri/target/release/bundle/deb/DSA Revision Tracker_1.0.0_amd64.deb"
-sudo apt --fix-broken install
+sudo dnf install "src-tauri/target/release/bundle/rpm/<generated-file>.rpm"
 ```
 
-### Windows (`.msi` / `.exe`)
+### Arch Linux
 
-Installers are created under:
+This project currently builds standard Tauri Linux bundles such as `.deb` and `.rpm`. On Arch, the simplest development flow is:
+
+```bash
+npm run desktop:dev
+```
+
+For local release use, run the binary from:
 
 ```text
-src-tauri\target\release\bundle\msi\
-src-tauri\target\release\bundle\nsis\
+src-tauri/target/release/
 ```
 
-1. Open File Explorer and go to `src-tauri\target\release\bundle\`.
-2. Run the `.msi` installer, **or** run the `.exe` setup from the `nsis` folder.
-3. Follow the on-screen prompts.
-4. Launch **DSA Revision Tracker** from the Start menu.
+## App Workflow
 
-### macOS (`.dmg`)
+1. Click the floating `+` button.
+2. Choose `Normal Mode` for coding questions or `Theory Mode` for notes.
+3. Fill in the form.
+4. Use `Reviewed` when the item is done for the current revision.
+5. Collapse or expand `Questions` and `Theory` sections by clicking their headers.
+6. Use `Export JSON` to back up progress.
 
-The disk image is created under:
+## Scripts
 
-```text
-src-tauri/target/release/bundle/dmg/
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start Vite web dev server |
+| `npm run desktop:dev` | Start Tauri desktop app |
+| `npm run build` | Type-check and build frontend |
+| `npm run desktop:build` | Build desktop release bundles |
+| `npm run desktop:appimage` | Build the portable Linux AppImage |
+| `npm run desktop:build:ci` | Build Tauri binary without bundling |
+
+## Troubleshooting
+
+### `webkit2gtk-4.1` package not found
+
+Use a distro release that provides WebKitGTK 4.1. For Debian-based systems, Ubuntu 22.04+ or Debian 12+ are safer baselines for Tauri 2.
+
+### `cargo` command not found
+
+Rust is missing or the shell environment was not loaded:
+
+```bash
+source "$HOME/.cargo/env"
 ```
 
-1. Open the `.dmg` file (for example `DSA Revision Tracker_1.0.0_x64.dmg`).
-2. Drag **DSA Revision Tracker** into **Applications**.
-3. Open the app from Launchpad or Applications.
+### App builds but does not open on Linux
 
-> **Note:** Build Linux packages on Linux, Windows packages on Windows, and macOS packages on macOS. Cross-platform installers require building on each target OS (or CI).
+Make sure the Tauri system dependencies for your distro are installed, especially WebKitGTK, OpenSSL development headers, `libxdo`, and appindicator packages.
 
----
+## References
+
+- Tauri v2 Linux prerequisites: <https://v2.tauri.app/start/prerequisites/>
+- Tauri Debian packaging notes: <https://v2.tauri.app/distribute/debian/>
 
 ## License
 
-This project is private. Licensing and redistribution terms are defined by the repository owner. Contact the maintainer for permission to use, fork, or distribute the code.
+This project is private. Licensing and redistribution terms are defined by the repository owner.
