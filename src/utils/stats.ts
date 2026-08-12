@@ -1,4 +1,4 @@
-import type { Question } from '../types';
+import type { Question, TheoryItem } from '../types';
 import { difficultyChartColor, difficultyGroupKey } from './difficulty';
 
 export interface DashboardStats {
@@ -6,9 +6,14 @@ export interface DashboardStats {
   dueToday: number;
   completed: number;
   mostPracticedTopic: string;
+  theory: number;
 }
 
-export function computeStats(questions: Question[], currentDay: number): DashboardStats {
+export function computeStats(
+  questions: Question[],
+  currentDay: number,
+  theories: TheoryItem[] = []
+): DashboardStats {
   const total = questions.length;
   const completed = questions.filter((q) => q.completed).length;
   const dueToday = questions.filter(
@@ -23,7 +28,7 @@ export function computeStats(questions: Question[], currentDay: number): Dashboa
   const mostPracticedTopic =
     Object.entries(topicCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
 
-  return { total, dueToday, completed, mostPracticedTopic };
+  return { total, dueToday, completed, mostPracticedTopic, theory: theories.length };
 }
 
 export function getTopicDistribution(questions: Question[]): { topic: string; count: number }[] {

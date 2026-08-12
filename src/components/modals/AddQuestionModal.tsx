@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react';
-import type { AddQuestionForm, Difficulty } from '../../types';
+import { useEffect, useState, type FormEvent } from 'react';
+import type { AddQuestionForm, Difficulty, Question } from '../../types';
 import { Button } from '../ui/Button';
 import { Modal } from '../ui/Modal';
 
@@ -21,28 +21,73 @@ const TOPICS = [
 ];
 const DIFFICULTIES: Difficulty[] = ['Easy', 'Medium', 'Hard'];
 
-const emptyForm: AddQuestionForm = {
+type AddQuestionModalForm = Omit<AddQuestionForm, 'loopIntervalDays'> & {
+  loopIntervalDays: string;
+};
+
+const emptyForm: AddQuestionModalForm = {
   title: '',
   link: '',
   platform: 'LeetCode',
   topic: 'Arrays',
   difficulty: 'Medium',
+  loopEnabled: false,
+  loopIntervalDays: '2',
 };
 
 interface AddQuestionModalProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (form: AddQuestionForm) => void;
+  question?: Question | null;
+  onDelete?: (id: string) => void;
 }
 
-export function AddQuestionModal({ open, onClose, onSubmit }: AddQuestionModalProps) {
-  const [form, setForm] = useState<AddQuestionForm>(emptyForm);
+function formFromQuestion(question: Question | null | undefined): AddQuestionModalForm {
+  if (!question) return emptyForm;
+  return {
+    title: question.title,
+    link: question.link,
+    platform: question.platform,
+    topic: question.topic,
+    difficulty: question.difficulty,
+    loopEnabled: Boolean(question.loopEnabled),
+    loopIntervalDays: String(question.loopIntervalDays ?? 2),
+  };
+}
+
+export function AddQuestionModal({
+  open,
+  onClose,
+  onSubmit,
+  question,
+  onDelete,
+}: AddQuestionModalProps) {
+  const [form, setForm] = useState<AddQuestionModalForm>(emptyForm);
+  const isEditing = Boolean(question);
+
+  useEffect(() => {
+    if (open) setForm(formFromQuestion(question));
+  }, [open, question]);
+
+  const loopIntervalDays = Number(form.loopIntervalDays);
+  const hasValidLoopInterval =
+    !form.loopEnabled ||
+    (/^[1-9]\d*$/.test(form.loopIntervalDays) && Number.isSafeInteger(loopIntervalDays));
+  const canSubmit = Boolean(form.title.trim() && form.link.trim() && hasValidLoopInterval);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!form.title.trim() || !form.link.trim()) return;
-    onSubmit(form);
-    setForm(emptyForm);
+    if (!canSubmit) return;
+    onSubmit({ ...form, loopIntervalDays });
+    onClose();
+  };
+
+  const handleDelete = () => {
+    if (!question || !onDelete) return;
+    const confirmed = window.confirm(`Delete "${question.title}"?`);
+    if (!confirmed) return;
+    onDelete(question.id);
     onClose();
   };
 
@@ -51,7 +96,7 @@ export function AddQuestionModal({ open, onClose, onSubmit }: AddQuestionModalPr
   const selectClass = `app-select ${inputClass}`;
 
   return (
-    <Modal open={open} onClose={onClose} title="Add Question">
+    <Modal open={open} onClose={onClose} title={isEditing ? 'Edit Question' : 'Add Question'}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="mb-1.5 block text-xs font-medium text-gray-400">Title</label>
@@ -120,13 +165,57 @@ export function AddQuestionModal({ open, onClose, onSubmit }: AddQuestionModalPr
             </select>
           </div>
         </div>
-        <div className="flex justify-end gap-2 pt-2">
+        <div className="rounded-lg border border-surface-border bg-surface-overlay/40 p-3">
+          <label className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={form.loopEnabled}
+              onChange={(e) => setForm({ ...form, loopEnabled: e.target.checked })}
+              className="h-4 w-4 rounded border-surface-border bg-surface-overlay text-accent focus:ring-accent/50"
+            />
+            <span className="text-sm font-medium text-gray-300">Loop review schedule</span>
+          </label>
+          {form.loopEnabled && (
+            <div className="mt-3">
+              <label className="mb-1.5 block text-xs font-medium text-gray-400">
+                Review every days
+              </label>
+              <input
+                required
+                type="text"
+                inputMode="numeric"
+                pattern="[1-9][0-9]*"
+                value={form.loopIntervalDays}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    loopIntervalDays: e.target.value,
+                  })
+                }
+                aria-invalid={!hasValidLoopInterval}
+                className={`${inputClass} no-number-spinner`}
+                placeholder="2"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                After each review, the next review is scheduled this many days later.
+              </p>
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:items-center sm:justify-between">
+          {isEditing && (
+            <Button variant="danger" onClick={handleDelete} type="button">
+              Delete
+            </Button>
+          )}
+          <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={onClose} type="button">
             Cancel
           </Button>
-          <Button variant="primary" type="submit">
-            Add Question
+          <Button variant="primary" type="submit" disabled={!canSubmit}>
+            {isEditing ? 'Save Changes' : 'Add Question'}
           </Button>
+          </div>
         </div>
       </form>
     </Modal>

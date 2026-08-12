@@ -1,13 +1,14 @@
 import type { Question } from '../../types';
 import { difficultyBadgeClass, formatDifficultyLabel } from '../../utils/difficulty';
 import { openExternalLink } from '../../utils/openLink';
-import { formatRevisionStage, getReviewStatus } from '../../utils/revision';
+import { formatQuestionRevision, getReviewStatus } from '../../utils/revision';
 import { Button } from '../ui/Button';
 
 interface QuestionRowProps {
   question: Question;
   currentDay: number;
   onMarkReviewed: (id: string) => void;
+  onEdit: (id: string) => void;
 }
 
 const statusStyles = {
@@ -17,7 +18,12 @@ const statusStyles = {
   completed: 'border-l-emerald-500 bg-emerald-500/5',
 };
 
-export function QuestionRow({ question, currentDay, onMarkReviewed }: QuestionRowProps) {
+export function QuestionRow({
+  question,
+  currentDay,
+  onMarkReviewed,
+  onEdit,
+}: QuestionRowProps) {
   const status = getReviewStatus(question, currentDay);
   const rowClass = statusStyles[status];
 
@@ -45,7 +51,7 @@ export function QuestionRow({ question, currentDay, onMarkReviewed }: QuestionRo
         {question.completed ? '—' : `Day ${question.nextReviewDay}`}
       </td>
       <td className="hidden px-4 py-3 text-sm text-gray-400 xl:table-cell">
-        {formatRevisionStage(question.revisionStage)}
+        {formatQuestionRevision(question)}
       </td>
       <td className="px-4 py-3">
         <div className="flex flex-wrap items-center gap-2">
@@ -56,6 +62,9 @@ export function QuestionRow({ question, currentDay, onMarkReviewed }: QuestionRo
           >
             Open
           </button>
+          <Button variant="secondary" size="sm" onClick={() => onEdit(question.id)}>
+            Edit
+          </Button>
           {!question.completed && (
             <Button
               variant="success"
