@@ -29,7 +29,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["appimage", "deb", "rpm"],
+    "targets": ["deb", "rpm"],
     "category": "Education",
     "shortDescription": "Spaced repetition tracker for DSA interview prep",
     "longDescription": "Track coding problems with spaced repetition schedules (2d, 7d, 21d, 60d) and review reminders.",
